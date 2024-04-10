@@ -29,7 +29,7 @@
 				x.innerText = `${player.name}${isYou ? " (You)" : ""} - ${player.points}`;
 				find.innerHTML = "";
 				find.appendChild(x);
-				find.setAttribute("style", `color: ${player.points < 1 ? "black": "white"}; width: ${Math.min(100, player.points / maxScore * 100) || 0}%; background-color: ${getColorFromName(player.name)}`);
+				find.setAttribute("style", `color: ${player.points < 1 ? "white": "black"}; width: ${Math.min(100, player.points / maxScore * 100) || 0}%; background-color: ${getColorFromName(player.name)}`);
 			}
 		}
 	}
