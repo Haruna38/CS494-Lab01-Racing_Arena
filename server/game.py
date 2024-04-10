@@ -356,14 +356,14 @@ class Set:
 
 			if self.noPlayers():
 				self.endGame = True
-
-			waiting_time = GAME_END_WAITING_TIME if self.endGame else ROUND_END_WAITING_TIME
-
-			self.endTime = int((time.time() + waiting_time) * 1000)
 			
 			self.status()
 
 		except Exception as e:
 			print("game", e)
+
+		waiting_time = GAME_END_WAITING_TIME if self.endGame else ROUND_END_WAITING_TIME
+
+		self.endTime = int((time.time() + waiting_time) * 1000)
 
 		Timer(waiting_time, self.restartRound, []).start()
