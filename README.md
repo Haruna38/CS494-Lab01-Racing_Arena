@@ -3,6 +3,10 @@
 
 ## Prepare
 ```bash
+pip3 install -r requirements.txt
+```
+or
+```bash
 pip install -r requirements.txt
 ```
 
