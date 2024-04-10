@@ -34,8 +34,6 @@
 		}
 	}
 
-	document.querySelector("#race").innerHTML = '';
-
 	let colors = {
 		red: "red",
 		green: "green",
@@ -82,8 +80,6 @@
 
 	let question = document.querySelector("#question");
 	let sub = document.querySelector("#subtitle");
-
-	NotifBox.element.setAttribute("style", "opacity: 0;");
 
 	let inputBox = document.querySelector("#input");
 
