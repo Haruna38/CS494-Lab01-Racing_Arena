@@ -171,5 +171,9 @@
 		}
 
 		inputBox.value = ""
-	})
+	});
+
+	window.onbeforeunload = function () {
+		return "Leave game?";
+	}
 })();

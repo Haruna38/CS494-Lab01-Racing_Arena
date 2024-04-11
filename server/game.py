@@ -72,11 +72,17 @@ class Game:
 		if cli == None:
 			# send to all players
 			for player in self.players.list:
-				player.client.sendJSON(message)
+				try:
+					player.client.sendJSON(message)
+				except Exception as e:
+					continue
 
 			return
 
-		cli.sendJSON(message)
+		try:
+			cli.sendJSON(message)
+		except Exception as e:
+			return
 	
 	def sendError(self, cli, errorMsg):
 		return self.sendData(cli, "error", errorMsg)
@@ -330,8 +336,11 @@ class Set:
 						self.manager.sendData(player.client, "wrong_answer", "")
 						if player.justJoined:
 							continue
-						totalPointsLost += 1
-						player.points = max(player.points - 1, 0)
+
+						if player.points > 0:
+							totalPointsLost += 1
+							player.points -= 1
+						
 						player.penalty += 1
 						if player.penalty >= 3: # wrong answer 3 times in a row
 							player.gameovered = True
@@ -356,8 +365,6 @@ class Set:
 
 			if self.noPlayers():
 				self.endGame = True
-			
-			self.status()
 
 		except Exception as e:
 			print("game", e)
@@ -365,5 +372,10 @@ class Set:
 		waiting_time = GAME_END_WAITING_TIME if self.endGame else ROUND_END_WAITING_TIME
 
 		self.endTime = int((time.time() + waiting_time) * 1000)
+
+		try:
+			self.status()
+		except Exception as e:
+			print("game_status", e)
 
 		Timer(waiting_time, self.restartRound, []).start()
