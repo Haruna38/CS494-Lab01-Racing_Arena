@@ -2,8 +2,27 @@
 	let players = [];
 	let maxScore, player_name;
 
-	let getColorFromName = function (name) {
-		return "#" + (name.split("").reduce((a,b) => a + b.charCodeAt(0) * 100, 0) % (1 << 24)).toString(16).padStart(6, "0");
+	let getColorFromPlayer = function (player) {
+		if (player.points < 1) return {
+			bgColor: "rgba(0,0,0,0)",
+			color: "white"
+		}
+		var color = (player.name.split("").reduce((a,b) => a + b.charCodeAt(0) * 100, 0) % (1 << 24)).toString(16).padStart(6, "0")
+		var r = parseInt(color.substring(0, 2), 16); // hexToR
+		var g = parseInt(color.substring(2, 4), 16); // hexToG
+		var b = parseInt(color.substring(4, 6), 16); // hexToB
+		var uicolors = [r / 255, g / 255, b / 255];
+		var c = uicolors.map((col) => {
+			if (col <= 0.03928) {
+				return col / 12.92;
+			}
+			return Math.pow((col + 0.055) / 1.055, 2.4);
+		});
+		var L = (0.2126 * c[0]) + (0.7152 * c[1]) + (0.0722 * c[2]);
+		return {
+			bgColor: "#" + color,
+			color: (L > 0.179) ? "black" : "white"
+		};
 	}
 
 	let updateVisual = function () {
@@ -29,7 +48,8 @@
 				x.innerText = `${player.name}${isYou ? " (You)" : ""} - ${player.points}`;
 				find.innerHTML = "";
 				find.appendChild(x);
-				find.setAttribute("style", `color: ${player.points < 1 ? "white": "black"}; width: ${Math.min(100, player.points / maxScore * 100) || 0}%; background-color: ${getColorFromName(player.name)}`);
+				let colorMode = getColorFromPlayer(player);
+				find.setAttribute("style", `color: ${colorMode.color}; width: ${Math.min(100, player.points / maxScore * 100) || 0}%; background-color: ${colorMode.bgColor}`);
 			}
 		}
 	}
@@ -83,7 +103,7 @@
 
 	let inputBox = document.querySelector("#input");
 
-	let socket = new WebSocket(WS_ENDPOINT);
+	let socket = new WebSocket(String(WS_ENDPOINT).replace(/^ws\:\/\/0\.0\.0\.0\:(\d+)\//, "ws://localhost:$1/"));
 
 	socket.sendJSON = function(e) {
 		return this.send(JSON.stringify(e))
