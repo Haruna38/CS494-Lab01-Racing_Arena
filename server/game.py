@@ -130,7 +130,7 @@ class Game:
 
 						return self.sendData(cli, "register_success", player.name)
 					except Exception as e:
-						print(e)
+						print("register (debug):", e)
 						return self.sendError(cli, "Please provide a nickname.")
 				case 'answer':
 					try:
@@ -162,10 +162,10 @@ class Game:
 
 						self.sendMessage(cli, "Answer received.")
 					except Exception as e:
-						print(e)
+						print("answer (debug):", e)
 						return self.sendError(cli, "Please provide an answer.")
 		except Exception as e:
-			print(e)
+			print("handle:", e)
 			return
 
 	def onClientClose(self, cli):
@@ -253,7 +253,7 @@ class Set:
 
 				self.status()
 			except Exception as e:
-				print("restart", e)
+				print("restart:", e)
 
 			Timer(self.manager.countdown, self.endRound, []).start()
 
@@ -317,7 +317,7 @@ class Set:
 
 						self.manager.sendData(player.client, "correct_answer", "")
 
-						if firstCorrect == None or firstCorrect.point:
+						if firstCorrect == None:
 							firstCorrect = player
 						else:
 							player.points += 1
@@ -367,7 +367,7 @@ class Set:
 				self.endGame = True
 
 		except Exception as e:
-			print("game", e)
+			print("game_end:", e)
 
 		waiting_time = GAME_END_WAITING_TIME if self.endGame else ROUND_END_WAITING_TIME
 
@@ -376,6 +376,6 @@ class Set:
 		try:
 			self.status()
 		except Exception as e:
-			print("game_status", e)
+			print("game_status:", e)
 
 		Timer(waiting_time, self.restartRound, []).start()
