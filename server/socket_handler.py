@@ -224,6 +224,12 @@ class SocketClient:
 	
 	def close (self):
 		return self.socket.close()
+	
+	def __eq__(self, __value: object) -> bool:
+		if not isinstance(__value, SocketClient):
+			return False
+		
+		return self.address == __value.address and self.socket == __value.socket
 
 # Socket Clients Manager instance.
 class SocketClientManager:

@@ -118,6 +118,9 @@
 					document.querySelector("#text").innerText = `What's your answer?`;
 					document.querySelector("#name").innerText = player_name;
 					document.querySelector("#profile").removeAttribute("style");
+					window.onbeforeunload = function () {
+						return "Leave game?";
+					}
 					updateVisual();
 					break;
 				case "round_started":
@@ -172,8 +175,4 @@
 
 		inputBox.value = ""
 	});
-
-	window.onbeforeunload = function () {
-		return "Leave game?";
-	}
 })();

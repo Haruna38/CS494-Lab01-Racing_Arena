@@ -1,13 +1,12 @@
 # Racing Arena
-**(Python Socket + Flask + HTML/CSS/JS)**
+**(Python 3 Socket + Flask + HTML/CSS/JS)**
+
+## Requirements
+- Python 3.10+
 
 ## Prepare
 ```bash
 pip3 install -r requirements.txt
-```
-or
-```bash
-pip install -r requirements.txt
 ```
 
 ## Running

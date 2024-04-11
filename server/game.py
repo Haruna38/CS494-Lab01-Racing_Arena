@@ -9,7 +9,7 @@ import os
 random.seed(time.time())
 
 class Player:
-	def __init__(self, client) -> None:
+	def __init__(self, client: SocketClient) -> None:
 		self.client = client
 		self.name = None
 		self.points = 0
@@ -19,22 +19,48 @@ class Player:
 		self.penalty = 0 # gameovered after a penalty
 		self.gameovered = False
 
+	def __eq__(self, __value: object) -> bool:
+		if not isinstance(__value, Player):
+			return False
+		
+		return self.client == __value.client
+	
+	def information(self):
+		print("Client:", self.client.addressString())
+		print("Registered:", self.registered)
+		if self.registered:
+			print("Name:", self.name)
+			if self.justJoined:
+				print("Joined mid-round.")
+
+			if self.gameovered:
+				print("Game-overed.")
+			else:
+				print("Points:", self.points)
+				print("Penalty:", self.penalty)
+				print("Current answer:", "Not answered" if self.answered == None else self.answered)
+
 class PlayerManager:
 	def __init__(self) -> None:
 		self.list = []
 
-	def find(self, client) -> Player | None:
+	def find(self, client: SocketClient) -> Player | None:
 		for player in self.list:
 			if player.client == client:
 				return player
+		
 		return None
 	
-	def add(self, client) -> Player:
-		player = Player(client)
-		self.list.append(player)
+	def add(self, client: SocketClient) -> Player:
+		player = self.find(client)
+		
+		if player == None:
+			player = Player(client)
+			self.list.append(player)
+		
 		return player
 	
-	def remove(self, client) -> Player | None:
+	def remove(self, client: SocketClient) -> Player | None:
 		for player in self.list:
 			if player.client == client:
 				self.list.remove(player)
@@ -63,6 +89,13 @@ class Game:
 	def startRound(self):
 		self.round.start()
 
+	def sendDataToSingle(self, cli, message):
+		try:
+			cli.sendJSON(message)
+		except Exception as e:
+			print("send:", e)
+			return
+
 	def sendData(self, cli, name, content):
 		message = {
 			"name": name,
@@ -72,17 +105,11 @@ class Game:
 		if cli == None:
 			# send to all players
 			for player in self.players.list:
-				try:
-					player.client.sendJSON(message)
-				except Exception as e:
-					continue
+				self.sendDataToSingle(player.client, message)
 
 			return
 
-		try:
-			cli.sendJSON(message)
-		except Exception as e:
-			return
+		self.sendDataToSingle(cli, message)
 	
 	def sendError(self, cli, errorMsg):
 		return self.sendData(cli, "error", errorMsg)
@@ -99,6 +126,7 @@ class Game:
 			if player == None:
 				return self.sendError(cli, "Who are you?")
 			
+			
 			match data['name']:
 				case 'register':
 					try:
@@ -112,8 +140,8 @@ class Game:
 						if re.match(r'^[a-zA-Z0-9_]{1,10}$', nickname) == None:
 							return self.sendError(cli, "Nickname must only from 1-10 character(s) and only contains alphanumerics and/or underscores (_).")
 						
-						for player in self.players.list:
-							if player.registered and player.name == nickname:
+						for p in self.players.list:
+							if p.registered and p.name == nickname:
 								return self.sendError(cli, "Someone already picked this nickname. Please try another.")
 							
 						player.registered = True
@@ -174,7 +202,7 @@ class Game:
 		if player != None and player.registered:
 			self.sendData(None, "player_left", player.name)
 
-	def playerStatus (self, client = None):
+	def playerStatus (self, client:SocketClient = None):
 		playersData = []
 
 		for player in self.players.list:
@@ -189,7 +217,7 @@ class Game:
 
 		self.sendData(client, "players_info", playersData)
 
-	def onClientConnect(self, cli):
+	def onClientConnect(self, cli: SocketClient):
 		newPlayer = self.players.add(cli)
 
 		self.round.status(newPlayer.client)
@@ -264,7 +292,7 @@ class Set:
 
 		return True
 
-	def status (self, client = None):
+	def status (self, client:SocketClient = None):
 		if self.roundEnd:
 			if not self.notStarted:
 				self.manager.playerStatus(client)
@@ -337,22 +365,24 @@ class Set:
 						if player.justJoined:
 							continue
 
-						if player.points > 0:
-							totalPointsLost += 1
-							player.points -= 1
-						
 						player.penalty += 1
 						if player.penalty >= 3: # wrong answer 3 times in a row
 							player.gameovered = True
+							totalPointsLost += player.points
 							self.manager.sendData(player.client, "disqualified", "You are disqualified for many wrong answers in a row.")
+						elif player.points > 0:
+							totalPointsLost += 1
+							player.points -= 1
+					
 
 				# give more points to first correct one
 				if firstCorrect != None:
+					totalPointsLost = max(2, totalPointsLost)
 					if firstCorrect.justJoined:
 						# nerf to prevent smurfers
 						totalPointsLost //= 2
 					
-					firstCorrect.points += max(totalPointsLost, 1) + (0 if firstCorrect.justJoined else 1)
+					firstCorrect.points += totalPointsLost
 
 				# check if someone wins yet?
 				self.winner = None
