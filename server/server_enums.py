@@ -9,7 +9,7 @@ SERVER_DEBUG_MESSAGE = True # log every client message into console
 
 # GAME PROPERTIES
 
-MAX_COUNTDOWN_TIME = 60 # seconds
+MAX_COUNTDOWN_TIME = 45 # seconds
 MIN_COUNTDOWN_TIME = 10 # seconds
 ROUND_END_WAITING_TIME = 5 # seconds
 GAME_END_WAITING_TIME = 10 # seconds

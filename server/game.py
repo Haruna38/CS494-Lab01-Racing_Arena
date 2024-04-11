@@ -339,9 +339,12 @@ class Set:
 				firstCorrect = None
 
 				# check list of answered
+				new_answers = []
 				for player in self.answers:
 					if player.answered == result:
 						player.penalty = 0
+						
+						new_answers.append(player)
 
 						self.manager.sendData(player.client, "correct_answer", "")
 
@@ -351,7 +354,8 @@ class Set:
 							player.points += 1
 					else:
 						player.answered = None
-						self.answers.remove(player)
+
+				self.answers = new_answers
 
 				# check for all players to check how many failed
 				totalPointsLost = 0
