@@ -107,5 +107,6 @@ body {
 }
 
 .player-bar > * {
-	padding-left: 3%;
+	padding-right: 3%;
+	text-align: right;
 }

@@ -8,7 +8,7 @@ class Client:
 		
 		@self.app.route("/") 
 		def index(): 
-			return render_template('index.html', WS_ENDPOINT=os.environ['WS_ENDPOINT'])
+			return render_template('index.html', WS_ENDPOINT=os.environ.get('WS_ENDPOINT'))
 
 	def start(self):
 		self.app.run(host=CLIENT_HOST, port=CLIENT_PORT)
