@@ -1,9 +1,7 @@
-FROM ubuntu:latest
+FROM python:latest
 WORKDIR /app
 COPY . .
-RUN apt update && \
-	apt install -y python3 python3-pip && \
-	pip3 install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 # Server socket port
 ENV GAME_SERVER_PORT 4000

@@ -269,9 +269,28 @@ class Set:
 				if self.endGame:
 					self.manager.playerStatus()
 
+				# select operator
 				self.operator = random.choice(["+", "-", "*", "/", "%"])
-				self.num1 = random.randrange(-10000, 10000, 1)
-				self.num2 = random.randrange(-10000, 10000, 1)
+
+				# select second int
+				match (self.operator):
+					case "%" | "/":
+						# random but skip zero
+						self.num2 = random.choice(list(range(-10000, 0)) + list(range(1, 10001)))
+					case _:
+						self.num2 = random.randrange(-10000, 10000, 1)
+
+				# select first int
+				match (self.operator):
+					case "/":
+						# ensure division value will always be int
+						division1 = int(-10000 / self.num2)
+						division2 = int(10000 / self.num2)
+						self.num1 = self.num2 * random.randrange(min(division1, division2), max(division1, division2), 1)
+					case _:
+						self.num1 = random.randrange(-10000, 10000, 1)
+
+
 				self.roundEnd = False
 				self.endGame = False
 				self.endTime = int((time.time() + self.manager.countdown) * 1000)
@@ -334,14 +353,18 @@ class Set:
 
 			if not init:
 				# calculate result
-				result = self.result = int(eval(f'{self.num1} {self.operator} {self.num2}'))
+				result = self.result = [int(eval(f'{self.num1} {self.operator} {self.num2}'))]
+
+				if self.operator == "%":
+					self.result.append(self.result[0] - self.num2)
+					self.result.sort(reverse=True)
 
 				firstCorrect = None
 
 				# check list of answered
 				new_answers = []
 				for player in self.answers:
-					if player.answered == result:
+					if player.answered in result:
 						player.penalty = 0
 						
 						new_answers.append(player)

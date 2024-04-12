@@ -145,10 +145,10 @@
 					break;
 				case "round_started":
 					question.innerText = `${spec.num1} ${spec.operator} ${spec.num2} = ?`;
-					sub.innerText = "Round the result down to nearest integer if neccessary";
+					sub.innerText = "Be the first correct one to gain more points!";
 					break;
 				case "round_ended":
-					question.innerText = spec.not_started ? "Waiting for more players..." : `${spec.num1} ${spec.operator} ${spec.num2} = ${spec.result}`;
+					question.innerText = spec.not_started ? "Waiting for more players..." : `${spec.num1} ${spec.operator} ${spec.num2} = ${spec.result.join(" or ")}`;
 					sub.innerText = spec.game_end ? "Next game will start shortly..." : "Next round will start shortly...";
 					break;
 				case "correct_answer":
